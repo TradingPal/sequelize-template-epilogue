@@ -6,9 +6,16 @@
 module.exports = function(model,epilogue){
 // Create REST resource
 var resource = epilogue.resource({
-  model: model,
-  associations: true,
-  endpoints: ['/{{ modelName(table) }}s', '/{{ modelName(table) }}s/:id']
+   model: model,
+   associations: {
+      autoPopulate: { read: false, list: false },
+      removeForeignKeys: false
+   },
+   sort: {
+      default: 'id'
+      //default: '-email,username'
+   }
+   endpoints: ['/{{ modelName(table) }}s', '/{{ modelName(table) }}s/:id']
 });
 
 // disallow deletes on users
@@ -18,87 +25,116 @@ resource.delete.auth(function(req, res, context) {
     return context.error(403, "can't delete a user");
 })
 
-var milestones = {
-   create: {
-      fetch: function(req, res, context) {
-         // manipulate the fetch call
-         return context.continue;
-      }
-   },
-   list: {
-      write: {
-         before: function(req, res, context) {
-            // modify data before writing list data
-            return context.continue;
-         },
-         action: function(req, res, context) {
-            // change behavior of actually writing the data
-            return context.continue;
-         },
-         after: function(req, res, context) {
-            // set some sort of flag after writing list data
+   var milestones = {
+      create: {
+         fetch: function(req, res, context) {
+            // manipulate the fetch call
             return context.continue;
          }
-      }
-   },
-   read: {
-      write: {
-         before: function(req, res, context) {
-            // modify data before writing list data
-            return context.continue;
-         },
-         action: function(req, res, context) {
-            // change behavior of actually writing the data
-            return context.continue;
-         },
-         after: function(req, res, context) {
-            // set some sort of flag after writing list data
-            return context.continue;
+      },
+      list: {
+         write: {
+            before: function(req, res, context) {
+               // modify data before writing list data
+               return context.continue;
+            },
+            action: function(req, res, context) {
+               // change behavior of actually writing the data
+               return context.continue;
+            },
+            after: function(req, res, context) {
+               // set some sort of flag after writing list data
+               return context.continue;
+            }
          }
-      }
-   },
-   update: {
-      write: {
-         before: function(req, res, context) {
-            // modify data before writing list data
-            return context.continue;
-         },
-         action: function(req, res, context) {
-            // change behavior of actually writing the data
-            return context.continue;
-         },
-         after: function(req, res, context) {
-            // set some sort of flag after writing list data
-            return context.continue;
+      },
+      read: {
+         write: {
+            before: function(req, res, context) {
+               // modify data before writing list data
+               return context.continue;
+            },
+            action: function(req, res, context) {
+               // change behavior of actually writing the data
+               return context.continue;
+            },
+            after: function(req, res, context) {
+               // set some sort of flag after writing list data
+               return context.continue;
+            }
          }
-      }
-   },
-   delete: {
-      write: {
-         before: function(req, res, context) {
-            // modify data before writing list data
-            return context.continue;
-         },
-         action: function(req, res, context) {
-            // change behavior of actually writing the data
-            return context.continue;
-         },
-         after: function(req, res, context) {
-            // set some sort of flag after writing list data
-            return context.continue;
+      },
+      update: {
+         write: {
+            before: function(req, res, context) {
+               // modify data before writing list data
+               return context.continue;
+            },
+            action: function(req, res, context) {
+               // change behavior of actually writing the data
+               return context.continue;
+            },
+            after: function(req, res, context) {
+               // set some sort of flag after writing list data
+               return context.continue;
+            }
          }
+      },
+      delete: {
+         write: {
+            before: function(req, res, context) {
+               // modify data before writing list data
+               return context.continue;
+            },
+            action: function(req, res, context) {
+               // change behavior of actually writing the data
+               return context.continue;
+            },
+            after: function(req, res, context) {
+               // set some sort of flag after writing list data
+               return context.continue;
+            }
+         },
+         auth:{
+            before: function(req, res, context) {
+               // modify data before writing list data
+               throw new ForbiddenError("can't delete a user");
+               // optionally:
+               // return context.error(403, "can't delete a user");
+            },
+            action: function(req, res, context) {
+               // change behavior of actually writing the data
+               return context.continue;
+            },
+            after: function(req, res, context) {
+               // set some sort of flag after writing list data
+               return context.continue;
+            }
+         },
       }
-   }
-};
+   };
 
-resource.use(milestones)
+   resource.use(milestones)
 }
 
 /////////////////////////
 //AVAILABLE MILESTONES
 /////////////////////////
 
+
+// start: function(req, res, context) {
+//    // manipulate the fetch call
+//    return context.continue;
+// },
+// auth: function(req, res, context) {
+//    // manipulate the fetch call
+//    return context.continue;
+// },
 // fetch: function(req, res, context) {
+//    // manipulate the fetch call
+//    return context.continue;
+// },
+// data: function(req, res, context) {
 //    // manipulate the fetch call
 //    return context.continue;
 // },
@@ -109,23 +145,22 @@ resource.use(milestones)
 // send: function(req, res, context) {
 //    // modify data before writing list data
 //    return context.continue;
-// },
-// before: function(req, res, context) {
-//    // modify data before writing list data
-//    return context.continue;
-// },
-// action: function(req, res, context) {
-//    // change behavior of actually writing the data
-//    return context.continue;
-// },
-// after: function(req, res, context) {
-//    // set some sort of flag after writing list data
-//    return context.continue;
-// },
+// }
 // complete: function(req, res, context) {
 //    // set some sort of flag after writing list data
 //    return context.continue;
 // }
+
+// start - ran at the beginning of the request
+// auth - authorize the request
+// fetch - fetch data from the database
+// data - transform the database data
+// write - write to the database
+// send - send response to the user
+// complete - request completed
+
+//MORE AT
+//https://github.com/dchester/epilogue/blob/master/docs/Milestones.md
 
 //////////////////////////
 //AVAILABLE ENDPOINTS
