@@ -1,0 +1,15 @@
+{% from '../partials/helper.nunj.html' import modelName -%}
+'use strict';
+
+function init(model,epilogue) {
+    // Import model files and assign them to `model` object.
+    {% for schema in db.schemas.array -%}
+        {% for table in schema.tables.array -%}
+             var {{ modelName(table) }} = require('./epilogue/{{ table.name | dashCase }}.js')(model.{{ modelName(table) }},epilogue);
+        {% endfor -%}
+    {% endfor %}
+
+    return model;
+}
+
+module.exports.init = init;

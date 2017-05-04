@@ -1,0 +1,85 @@
+{% from '../../partials/helper.nunj.html' import modelName, attributeName, hasOneAlias, hasManyAlias, belongsToAlias, belongsToManyAlias -%}
+{% set c = custom[modelName(table)] -%} {# Custom Data for this table i.e. "custom.Account" #}
+{% set templateDataFields = ['schema', 'tableName', 'comment', 'attributes', 'hasMany', 'belongsTo', 'belongsToMany', 'hasOne', 'timestamps'] -%}
+
+'use strict';
+module.exports = function(model,epilogue){
+// Create REST resource
+var resource = epilogue.resource({
+  model: model,
+  associations: true,
+  endpoints: ['/{{ modelName(table) }}s', '/{{ modelName(table) }}s/:id']
+});
+
+// disallow deletes on users
+resource.delete.auth(function(req, res, context) {
+    //throw new ForbiddenError("can't delete a user");
+    // optionally:
+    return context.error(403, "can't delete a user");
+})
+
+var middlewares = {
+   create: {
+      fetch: function(req, res, context) {
+         // manipulate the fetch call
+         return context.continue;
+      }
+   },
+   list: {
+      write: {
+         before: function(req, res, context) {
+            // modify data before writing list data
+            return context.continue;
+         },
+         action: function(req, res, context) {
+            // change behavior of actually writing the data
+            return context.continue;
+         },
+         after: function(req, res, context) {
+            // set some sort of flag after writing list data
+            return context.continue;
+         }
+      }
+   }
+};
+
+resource.use(middlewares)
+}
+
+// Define scope in model
+//  ...
+//  scope: {
+//    verified: {
+//      where : {
+//        email_verified: true
+//        phone_verified: true
+//      }
+//    }
+//  }
+
+//CREATE
+//curl -X POST 'http://localhost:3001/{{ modelName(table) | lower }}s'  ;
+
+//GET LIST
+//curl -X GET 'http://localhost:3001/{{ modelName(table) | lower }}s'  ;
+
+//GET LIST FILTERED (WHERE)
+//curl -X GET 'http://localhost:3001/{{ modelName(table) | lower }}s?name=James+Conrad'  ;
+
+//GET LIST FILTERED ORDERED & PAGINATION
+//curl -X GET 'http://localhost:3001/{{ modelName(table) | lower }}s?name=James+Conrad&orderby=username&offset=200&count=100'  ;
+
+//GET LIST SEARCH (LIKE)
+//curl -X GET 'http://localhost:3001/{{ modelName(table) | lower }}s?q=James+Conrad'  ;
+
+//GET LIST SCOPED (LIKE)
+//curl -X GET 'http://localhost:3001/{{ modelName(table) | lower }}s?scope=verified'  ;
+
+//GET WITH ID
+//curl -X GET 'http://localhost:3001/{{ modelName(table) | lower }}s/:id'  ;
+
+//UPDATE ID
+//curl -X PUT 'http://localhost:3001/{{ modelName(table) | lower }}s/:id'  ;
+
+//DELETE ID
+//curl -X DELETE 'http://localhost:3001/{{ modelName(table) | lower }}s/:id'  ;
