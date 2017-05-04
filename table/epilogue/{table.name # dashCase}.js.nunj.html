@@ -18,7 +18,7 @@ resource.delete.auth(function(req, res, context) {
     return context.error(403, "can't delete a user");
 })
 
-var middlewares = {
+var milestones = {
    create: {
       fetch: function(req, res, context) {
          // manipulate the fetch call
@@ -40,22 +40,96 @@ var middlewares = {
             return context.continue;
          }
       }
+   },
+   read: {
+      write: {
+         before: function(req, res, context) {
+            // modify data before writing list data
+            return context.continue;
+         },
+         action: function(req, res, context) {
+            // change behavior of actually writing the data
+            return context.continue;
+         },
+         after: function(req, res, context) {
+            // set some sort of flag after writing list data
+            return context.continue;
+         }
+      }
+   },
+   update: {
+      write: {
+         before: function(req, res, context) {
+            // modify data before writing list data
+            return context.continue;
+         },
+         action: function(req, res, context) {
+            // change behavior of actually writing the data
+            return context.continue;
+         },
+         after: function(req, res, context) {
+            // set some sort of flag after writing list data
+            return context.continue;
+         }
+      }
+   },
+   delete: {
+      write: {
+         before: function(req, res, context) {
+            // modify data before writing list data
+            return context.continue;
+         },
+         action: function(req, res, context) {
+            // change behavior of actually writing the data
+            return context.continue;
+         },
+         after: function(req, res, context) {
+            // set some sort of flag after writing list data
+            return context.continue;
+         }
+      }
    }
 };
 
-resource.use(middlewares)
+resource.use(milestones)
 }
 
-// Define scope in model
-//  ...
-//  scope: {
-//    verified: {
-//      where : {
-//        email_verified: true
-//        phone_verified: true
-//      }
-//    }
-//  }
+/////////////////////////
+//AVAILABLE MILESTONES
+/////////////////////////
+
+// fetch: function(req, res, context) {
+//    // manipulate the fetch call
+//    return context.continue;
+// },
+// write: function(req, res, context) {
+//    // modify data before writing list data
+//    return context.continue;
+// },
+// send: function(req, res, context) {
+//    // modify data before writing list data
+//    return context.continue;
+// },
+// before: function(req, res, context) {
+//    // modify data before writing list data
+//    return context.continue;
+// },
+// action: function(req, res, context) {
+//    // change behavior of actually writing the data
+//    return context.continue;
+// },
+// after: function(req, res, context) {
+//    // set some sort of flag after writing list data
+//    return context.continue;
+// },
+// complete: function(req, res, context) {
+//    // set some sort of flag after writing list data
+//    return context.continue;
+// }
+
+//////////////////////////
+//AVAILABLE ENDPOINTS
+//////////////////////////
 
 //CREATE
 //curl -X POST 'http://localhost:3001/{{ modelName(table) | lower }}s'  ;
