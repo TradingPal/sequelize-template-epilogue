@@ -3,6 +3,9 @@
 pgen exec sequelize-template index -h $DB_HOST -d $DB -u $DB_USER -p $DB_PASSWORD --ssl
 
 ```javascript
+  var Sequelize = require('sequelize');
+  var epilogue = require('epilogue');
+
   //SEQUELIZE
   var sequelize = new Sequelize('&DB', '$DB_USER', '$DB_PASS', {
     host: '$DB_HOST',
